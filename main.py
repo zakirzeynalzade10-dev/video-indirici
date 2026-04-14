@@ -34,13 +34,9 @@ def main(page: ft.Page):
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
 
-            # Dosyanın hazır olduğunu ve indirme linkini göster
             status_text.value = "Videonuz hazır! Aşağıdaki linkten cihazınıza kaydedin."
             
-            # Bu kısım kullanıcının dosyayı telefonuna çekmesini sağlar
-            page.add(ft.FilePicker()) # Gerekli altyapı
-            
-            # Linki ekrana bas
+            # Statik fayl kimi ötürmək üçün link yaradırıq
             download_link = ft.Text(
                 "VİDEOYU CİHAZA KAYDET (TIKLA)", 
                 size=20, 
@@ -62,4 +58,7 @@ def main(page: ft.Page):
         status_text
     )
 
-ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+# RENDER ÜÇÜN PORT AYARI (ƏN VACİB HİSSƏ)
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8550))
+    ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=port)
