@@ -9,6 +9,10 @@ def main(page: ft.Page):
     page.horizontal_alignment = "center"
     page.scroll = "auto"
 
+    # Statik fayllar üçün qovluq yaradırıq
+    if not os.path.exists("assets"):
+        os.makedirs("assets")
+
     status_text = ft.Text(value="Link yapıştırın", color="blue")
     link_input = ft.TextField(label="Video URL", width=400)
 
@@ -23,28 +27,27 @@ def main(page: ft.Page):
         page.update()
 
         try:
-            # Server üzerinde geçici dosya adı
-            file_name = f"video_{int(time.time())}.mp4"
+            # Videonu 'assets' qovluğuna endiririk ki, brauzer onu görə bilsin
+            file_id = int(time.time())
+            file_name = f"video_{file_id}.mp4"
+            file_path = os.path.join("assets", file_name)
             
             ydl_opts = {
                 'format': 'best',
-                'outtmpl': file_name,
+                'outtmpl': file_path,
             }
 
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
 
-            status_text.value = "Videonuz hazır! Aşağıdaki linkten cihazınıza kaydedin."
+            status_text.value = "Videonuz hazır!"
             
-            # Statik fayl kimi ötürmək üçün link yaradırıq
-            download_link = ft.Text(
-                "VİDEOYU CİHAZA KAYDET (TIKLA)", 
-                size=20, 
-                color="green", 
-                weight="bold",
-                selectable=True
-            )
-            page.add(download_link)
+            # ƏN VACİB HİSSƏ: Bu linkə tıkladıqda yükləmə başlayacaq
+            page.add(ft.ElevatedButton(
+                "VİDEONU TELEFONA ENDİR", 
+                icon=ft.icons.DOWNLOAD,
+                on_click=lambda _: page.launch_url(f"/{file_name}")
+            ))
             
         except Exception as ex:
             status_text.value = f"Hata: {str(ex)}"
@@ -58,7 +61,11 @@ def main(page: ft.Page):
         status_text
     )
 
-# RENDER ÜÇÜN PORT AYARI (ƏN VACİB HİSSƏ)
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8550))
-    ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=port)
+    # assets_dir tətbiqə faylları ötürməyə icazə verir
+    ft.app(
+        target=main, 
+        view=ft.AppView.WEB_BROWSER, 
+        port=int(os.getenv("PORT", 8550)),
+        assets_dir="assets"
+    )
